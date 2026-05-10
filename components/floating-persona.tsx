@@ -26,6 +26,13 @@ export function FloatingPersona({ persona, analysis }: Props) {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isResizing, setIsResizing] = useState(false);
   const [autoAnalyze, setAutoAnalyze] = useState(false);
+  const [jobInputMode, setJobInputMode] = useState(false);
+  const [jobText, setJobText] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+  }, []);
   const videoContainerRef = useCallback((node: HTMLDivElement | null) => {
     if (node) {
       const video = node.querySelector('video');
@@ -84,7 +91,10 @@ export function FloatingPersona({ persona, analysis }: Props) {
       'Use the resume memory below as your source of truth.',
       resumeMemory 
         ? `--- RESUME MEMORY ---\n${resumeMemory.slice(0, 8000)}` 
-        : 'Resume memory is not available yet.'
+        : 'Resume memory is not available yet.',
+      jobText
+        ? `--- JOB DESCRIPTION TO ANALYZE ---\n${jobText}`
+        : ''
     ].join('\n');
 
     const response = await fetch('/api/avatar/session', {
@@ -336,24 +346,55 @@ export function FloatingPersona({ persona, analysis }: Props) {
                   </button>
                 )}
 
-                <div className="grid grid-cols-2 gap-2">
-                  <button 
-                    className="button2 flex items-center justify-center gap-2 !py-2.5 !text-[10px]"
-                    data-no-drag
-                    onClick={startWithScreenShare}
-                  >
-                    <MonitorUp size={12} />
-                    Share Screen
-                  </button>
-                  <button 
-                    className="button2 flex items-center justify-center gap-2 !py-2.5 !text-[10px]"
-                    data-no-drag
-                    onClick={() => setSpeaking(!speaking)}
-                  >
-                    {speaking ? <Mic size={12} /> : <Mic size={12} className="text-rose-500" />}
-                    {speaking ? 'Mute AI' : 'Unmute AI'}
-                  </button>
-                </div>
+                {jobInputMode ? (
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <textarea
+                      value={jobText}
+                      onChange={(e) => setJobText(e.target.value)}
+                      placeholder="Paste job description or requirements here..."
+                      className="w-full h-24 bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-white/20"
+                      data-no-drag
+                    />
+                    <div className="flex gap-2">
+                      <button 
+                        className="button2 flex-1 !py-2 !text-[10px]"
+                        data-no-drag
+                        onClick={() => {
+                          setJobInputMode(false);
+                          setLiveAvatar(true);
+                        }}
+                      >
+                        Analyze Now
+                      </button>
+                      <button 
+                        className="button2 flex-1 !py-2 !text-[10px] !bg-transparent border border-white/10"
+                        data-no-drag
+                        onClick={() => setJobInputMode(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button 
+                      className="button2 flex items-center justify-center gap-2 !py-2.5 !text-[10px]"
+                      data-no-drag
+                      onClick={() => isMobile ? setJobInputMode(true) : startWithScreenShare()}
+                    >
+                      <MonitorUp size={12} />
+                      {isMobile ? 'Analyze Job' : 'Share Screen'}
+                    </button>
+                    <button 
+                      className="button2 flex items-center justify-center gap-2 !py-2.5 !text-[10px]"
+                      data-no-drag
+                      onClick={() => setSpeaking(!speaking)}
+                    >
+                      {speaking ? <Mic size={12} /> : <Mic size={12} className="text-rose-500" />}
+                      {speaking ? 'Mute AI' : 'Unmute AI'}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}

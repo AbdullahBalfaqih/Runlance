@@ -3,10 +3,11 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const fallbackPersona = {
-    persona: "Engineering Lead",
-    reasoning: "Defaulted to Engineering Lead due to an internal processing error.",
-    avatarId: "a42f41bf-b379-4544-bc19-58f35c489726",
-    personality: "Professional and direct. Focuses on technical execution and results."
+    persona: "Strict HR Lead",
+    reasoning: "System default for a high-stakes professional assessment.",
+    avatarId: "human-resource",
+    personality: "A very strict, direct, and rigorous HR interviewer. Focuses on high-pressure questions and thorough verification.",
+    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop"
   };
 
   try {
@@ -33,18 +34,16 @@ export async function POST(req: Request) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
-      Analyze the following resume text and categorize the user into one of three interviewer personas:
-      1. Engineering Lead: For software, data, or technical roles.
-      2. Creative Director: For design, UI/UX, art, or marketing roles.
-      3. Strategic Partner: For business, management, sales, or other corporate roles.
+      Analyze the following resume text and categorize the user into a professional interviewer persona.
+      The interviewer must be a STRICT HR professional (Strict, direct, and authoritative).
 
       Return ONLY a JSON object with the following structure:
       {
-        "persona": "Engineering Lead" | "Creative Director" | "Strategic Partner",
+        "persona": "Strict HR Executive",
         "reasoning": "A short sentence explaining why this persona was chosen based on specific keywords in the resume.",
         "avatarId": "a42f41bf-b379-4544-bc19-58f35c489726",
-        "personality": "A 2-sentence description of how this AI persona should behave during an interview.",
-        "backgroundPrompt": "A detailed prompt for a futuristic, cinematic, high-end 3D background environment for a Runway Gen-3 image generation model. Include lighting and mood details."
+        "personality": "A 2-sentence description of a STRICT, authoritative HR interviewer who focuses on pressure testing the candidate.",
+        "backgroundPrompt": "A detailed prompt for a professional, high-end corporate executive office for a Runway Gen-3 image generation model. Dramatic lighting, sharp focus, 8k resolution, cinematic."
       }
 
       Resume Text:

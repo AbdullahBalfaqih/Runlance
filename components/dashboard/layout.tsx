@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import Link from 'next/link';
-import { Menu, LogOut, Settings, Home, Briefcase, Mic, FileText, AlertCircle } from 'lucide-react';
+import { Menu, LogOut, Settings, Home, Briefcase, Mic, FileText, AlertCircle, Phone } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -20,14 +20,13 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
     { icon: Briefcase, label: 'My Personas', href: '/dashboard/personas' },
     { icon: FileText, label: 'My Resume', href: '/dashboard/resume' },
     { icon: Mic, label: 'Interview Prep', href: '/dashboard/interview' },
+    { icon: Phone, label: 'Voice Practice', href: '/dashboard/voice-practice' },
     { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
   ];
 
   return (
     <div className="h-screen w-full flex relative overflow-hidden bg-black">
-      <div className="absolute inset-0 z-0 opacity-100">
-        <Silk speed={5} scale={1} color="#7B7481" noiseIntensity={1.5} rotation={0} />
-      </div>
+      {/* Background removed to ensure solid black aesthetic */}
       
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (

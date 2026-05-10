@@ -1,6 +1,22 @@
 // Version 1.0.2 - Fixed ReferenceErrors
 import { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Phone, AlertCircle, CheckCircle, Send, MessageSquare, Sparkles, Trophy, Timer, Video, User, Briefcase, Zap } from 'lucide-react';
+import { 
+  Sparkles, 
+  MessageSquare, 
+  Video, 
+  Briefcase, 
+  CheckCircle, 
+  AlertCircle, 
+  Send, 
+  User, 
+  Zap,
+  FileText,
+  Mic, 
+  MicOff, 
+  Phone, 
+  Trophy, 
+  Timer
+} from 'lucide-react';
 import { FloatingPersona } from '@/components/floating-persona';
 import { Input } from '@/components/ui/input';
 import { AvatarCall, AvatarVideo, UserVideo, useLocalMedia } from '@runwayml/avatars-react';
@@ -67,21 +83,27 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
   const [isGeneratingResults, setIsGeneratingResults] = useState(false);
   const [resumeText, setResumeText] = useState<string | null>(null);
   const [assignedPersona, setAssignedPersona] = useState<any>(null);
-  const [videoGenerated, setVideoGenerated] = useState(false);
-  const [isVideoGenerating, setIsVideoGenerating] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
   const [isGeneratingBackground, setIsGeneratingBackground] = useState(false);
-  const [generationStep, setGenerationStep] = useState('');
+  const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const interviewReelRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     // 1. Try to load cached persona first
+    // Force a cache reset for version 1.0.3 to ensure Personal.png is used
+    const version = "1.0.3";
+    const savedVersion = localStorage.getItem('runlanceVersion');
+    if (savedVersion !== version) {
+        localStorage.removeItem('runlanceCachedPersona');
+        localStorage.setItem('runlanceVersion', version);
+    }
+
     const cachedPersona = localStorage.getItem('runlanceCachedPersona');
     if (cachedPersona) {
       try {
-        setAssignedPersona(JSON.parse(cachedPersona));
+        const parsed = JSON.parse(cachedPersona);
+        setAssignedPersona(parsed);
       } catch (e) {
         console.error("Failed to parse cached persona", e);
       }
@@ -127,10 +149,8 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
       
       const personaData = {
         name: data.persona,
-        avatarId: data.avatarId || 'a42f41bf-b379-4544-bc19-58f35c489726',
-        imageUrl: data.persona === 'Engineering Lead' ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop' : 
-                  data.persona === 'Creative Director' ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop' : 
-                  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
+        avatarId: data.avatarId || 'human-resource',
+        imageUrl: data.imageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
         personality: data.personality,
         reasoning: data.reasoning,
         backgroundPrompt: data.backgroundPrompt
@@ -155,6 +175,11 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  // Removed automatic avatar generation as we are using a fixed character
+  const generatePersonaAvatar = async (personaName: string, personality: string) => {
+    // Logic removed to favor the user's Personal.png
   };
 
   const generateBackground = async (prompt: string) => {
@@ -230,52 +255,6 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
     setIsGeneratingResults(false);
   };
 
-  const generateVideoFeedback = async () => {
-    if (!assignedPersona) return;
-    
-    setIsVideoGenerating(true);
-    setVideoGenerated(false);
-    
-    try {
-      const steps = [
-        "Synthesizing interview transcript...",
-        "Applying cinematic lighting to environment...",
-        "Orchestrating Runway veo3.1 video engine...",
-        "Finalizing high-fidelity encoding..."
-      ];
-
-      // We'll update the text UI as we go, but also trigger the actual API
-      setGenerationStep(steps[0]);
-
-      const response = await fetch('/api/generate-reel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: `Cinematic pan of a professional ${assignedPersona.name} office, hyper-realistic, 8k, dramatic lighting, subtle motion`,
-          inputImage: backgroundUrl
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to generate reel');
-      }
-      const data = await response.json();
-
-      if (data.videoUrl) {
-        // Find the video element and set its src if it exists, or just set the state
-        setVideoGenerated(true);
-        // We'll update the video tag below to use this URL
-        (window as any).runlanceGeneratedVideoUrl = data.videoUrl;
-      }
-
-    } catch (err) {
-      console.error("Reel generation error:", err);
-      setGenerationStep("Generation failed. Please try again.");
-    } finally {
-      setIsVideoGenerating(false);
-    }
-  };
 
   if (isGeneratingResults) {
     return (
@@ -295,17 +274,10 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
 
   if (!sessionActive && score === 0) {
     return (
-      <div className="max-w-5xl mx-auto py-12 space-y-12">
-        <div className="absolute inset-0 z-0">
-            {backgroundUrl ? (
-                <div 
-                    className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
-                    style={{ backgroundImage: `url(${backgroundUrl})`, opacity: isGeneratingBackground ? 0.3 : 1 }}
-                />
-            ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-black via-zinc-900 to-black opacity-60" />
-            )}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+      <div className="max-w-5xl mx-auto py-6 sm:py-12 px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
+        <div className="absolute inset-0 z-0 overflow-hidden bg-black">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(20,20,20,1)_0%,rgba(0,0,0,1)_100%)]" />
+            <div className="absolute inset-0 shadow-[inset_0_0_500px_rgba(0,0,0,0.8)]" />
         </div>
 
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -313,12 +285,21 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                 <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-full">
                     <span className="text-[10px] font-bold tracking-widest text-white/60">Runway Agentic Intelligence</span>
                 </div>
-                <h1 className="text-4xl sm:text-6xl font-bold text-white tracking-tighter leading-tight">
-                    Your Personal <br /> <span className="text-white/40">AI Coach.</span>
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white tracking-tighter leading-[1.1]">
+                    Your Personal <br className="hidden sm:block" /> <span className="text-white/40">AI Coach.</span>
                 </h1>
-                <p className="text-gray-400 text-xl max-w-md leading-relaxed">
+                <p className="text-gray-400 text-base sm:text-xl max-w-md leading-relaxed">
                     Practice with hyper-realistic AI personas tailored specifically to your industry and resume.
                 </p>
+
+                {!resumeText && (
+                    <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 animate-in fade-in duration-500">
+                        <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                            <FileText className="text-white/40" size={20} />
+                        </div>
+                        <p className="text-xs text-white/60">Upload your resume in the sidebar to start.</p>
+                    </div>
+                )}
                 
                 {resumeText && !assignedPersona && (
                     <button
@@ -363,7 +344,7 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                         {isGeneratingBackground && (
                             <div className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3 animate-pulse">
                                 <div className="w-3 h-3 bg-white/40 rounded-full animate-bounce" />
-                                <p className="text-[10px] text-white/40 font-mono tracking-widest uppercase">Designing Your Environment with Runway...</p>
+                                <p className="text-[10px] text-white/40 font-mono tracking-widest uppercase">Designing Environment...</p>
                             </div>
                         )}
                         {assignedPersona.reasoning && (
@@ -375,20 +356,20 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                 )}
                 
                 {assignedPersona && (
-                    <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                      <button
-                        onClick={() => startSession('text')}
-                        className="button2 !py-4 px-8 flex-1 flex items-center justify-center gap-3"
-                      >
-                        <MessageSquare size={18} />
-                        Start Text Chat
-                      </button>
+                    <div className="flex items-center bg-white/5 border border-white/10 rounded-full p-1.5 mt-8 w-full sm:w-fit relative z-[20]">
                       <button
                         onClick={() => startSession('voice')}
-                        className="button2 !py-4 px-8 flex-1 flex items-center justify-center gap-3 !bg-transparent border border-white/20 hover:!bg-white/5 !text-white"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-3 py-3.5 px-8 bg-white text-black rounded-full font-bold text-sm transition-all hover:scale-[1.02] shadow-xl"
                       >
                         <Video size={18} />
-                        Start Video Call
+                        <span>Join Interview Room</span>
+                      </button>
+                      <button
+                        onClick={() => startSession('text')}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-3 py-3.5 px-8 text-white rounded-full font-bold text-sm transition-all hover:bg-white/5"
+                      >
+                        <MessageSquare size={18} />
+                        <span>Text Mode</span>
                       </button>
                     </div>
                 )}
@@ -402,12 +383,9 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                     colors={['#ffffff', '#444444', '#111111']}
                 >
                     <div className="aspect-square relative p-12 flex flex-col items-center justify-center text-center">
-                        <div className="w-48 h-48 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mb-8 relative group">
+                        <div className="w-48 h-48 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mb-8 relative group overflow-hidden">
                             <div className="absolute inset-0 bg-white/10 blur-3xl rounded-full group-hover:bg-white/20 transition-all duration-700" />
-                            <User size={80} className="text-white/40 relative z-10" />
-                            <div className="absolute -bottom-2 right-4 px-4 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded-full shadow-2xl">
-                                Online
-                            </div>
+                            <User size={80} className="text-white relative z-10" />
                         </div>
                         <h3 className="text-2xl font-bold text-white mb-2">Interviewer Persona</h3>
                         <p className="text-gray-500 text-sm max-w-xs mx-auto">Automatically selected based on your career trajectory.</p>
@@ -447,23 +425,55 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
             <AvatarCall
               avatarId={assignedPersona?.avatarId}
               connect={async (avatarId) => {
-                const response = await fetch('/api/avatar/session', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
+                try {
+                  // Check for cached session credentials first
+                  const cachedSession = localStorage.getItem('runlance_active_session');
+                  if (cachedSession) {
+                    const parsed = JSON.parse(cachedSession);
+                    // Check if it matches current avatar and is less than 30 mins old
+                    if (parsed.avatarId === avatarId && (Date.now() - parsed.timestamp < 1800000)) {
+                      console.log('Reusing cached Runway session:', parsed.sessionId);
+                      return parsed.credentials;
+                    }
+                  }
+
+                  const response = await fetch('/api/avatar/session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      avatarId,
+                      startScript: `Hello! I'm your AI Interviewer. I've reviewed your resume and I'm excited to dive into your experience. Are you ready?`
+                    }),
+                  });
+                  
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    if (response.status === 429 || errorData.error?.includes('limit')) {
+                        throw new Error('RUNWAY_QUOTA_EXCEEDED');
+                    }
+                    throw new Error(errorData.error || 'Failed to create session');
+                  }
+                  
+                  const data = await response.json();
+                  
+                  // Cache the session credentials
+                  localStorage.setItem('runlance_active_session', JSON.stringify({
                     avatarId,
-                    startScript: `Hello! I'm your AI Interviewer. I've reviewed your resume and I'm excited to dive into your experience. Are you ready?`,
-                    personality: [
-                      assignedPersona?.personality,
-                      "You are a professional HR Interviewer.",
-                      "Your goal is to conduct a standard behavioral and technical job interview.",
-                      "Ask questions one by one. React naturally to the user's answers."
-                    ].join('\n')
-                  }),
-                });
-                if (!response.ok) throw new Error('Failed to create session');
-                const data = await response.json();
-                return data;
+                    sessionId: data.sessionId,
+                    credentials: data,
+                    timestamp: Date.now()
+                  }));
+
+                  return data;
+                } catch (e: any) {
+                  console.error('Session Connection Error:', e);
+                  if (e.message === 'RUNWAY_QUOTA_EXCEEDED') {
+                    alert(`Runway API Limit Reached: Your daily session limit has been reached. \n\nPlease use TEXT MODE to continue your practice.`);
+                  } else {
+                    alert(`Avatar Session Error: ${e.message}`);
+                  }
+                  throw e;
+                }
               }}
               audio={true}
               video={true}
@@ -524,7 +534,11 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
             >
               <div className="h-full flex flex-col items-center justify-center p-8 text-center">
                 <div className="w-32 h-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-8 relative overflow-hidden">
-                   <img src={assignedPersona?.imageUrl} alt="AI" className="w-full h-full object-cover grayscale opacity-40" />
+                    {assignedPersona?.imageUrl ? (
+                        <img src={assignedPersona.imageUrl} alt="AI" className="w-full h-full object-cover grayscale opacity-60" />
+                    ) : (
+                        <User size={40} className="text-white/20" />
+                    )}
                    <Sparkles className="absolute -top-2 -right-2 text-white/20" size={24} />
                 </div>
                 <h3 className="text-xl font-bold text-white tracking-tight mb-2">{assignedPersona?.name}</h3>
@@ -662,141 +676,59 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                 </BorderGlow>
             </div>
           </div>
-
           <div className="space-y-8">
-              <BorderGlow
-                  borderRadius={32}
-                  backgroundColor="#000000"
-                  glowColor="0 0 100"
-                  colors={['#ffffff', '#444444', '#111111']}
-                  className="h-full flex flex-col"
-              >
-                  <div className="p-8 flex-1 flex flex-col items-center justify-center text-center space-y-6">
-                      <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
-                          <Video size={32} className="text-white" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white tracking-tight">AI Video Feedback</h3>
-                      <p className="text-gray-500 text-xs leading-relaxed">
-                          Generate a personalized media reel of your session with AI-generated commentary.
-                      </p>
-
-                      {!videoGenerated && !isVideoGenerating ? (
-                        <button 
-                          onClick={generateVideoFeedback}
-                          className="button2 w-full !py-3 flex items-center justify-center gap-3 group"
-                        >
-                          <Sparkles size={16} className="group-hover:animate-spin" />
-                          Generate Reel
-                        </button>
-                      ) : isVideoGenerating ? (
-                        <div className="w-full space-y-4">
-                            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-white animate-progress-fast" />
-                            </div>
-                            <p className="text-[10px] text-white/40 font-mono tracking-widest">{generationStep}</p>
+            <BorderGlow
+                borderRadius={32}
+                backgroundColor="#000000"
+                glowColor="0 0 100"
+                colors={['#ffffff', '#444444', '#111111']}
+            >
+                <div className="p-8">
+                    <div className="flex flex-col items-center text-center py-6">
+                        <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6">
+                            <Video size={32} className="text-white/40" />
                         </div>
-                      ) : (
-                        <div className="w-full space-y-4 animate-in fade-in zoom-in duration-500">
-                             <div className="aspect-video bg-white/5 rounded-2xl border border-white/10 overflow-hidden relative group">
-                                {/* Avatar Video with PiP Support */}
-                                <video
-                                    ref={interviewReelRef}
-                                    autoPlay
-                                    muted
-                                    loop
-                                    playsInline
-                                    className="w-full h-full object-cover"
-                                    src={(window as any).runlanceGeneratedVideoUrl || "https://cdn.runwayml.com/marketing/Runway_Gen-3_Alpha_Demo.mp4"}
-                                />
-
-                                {/* Interactive Result Certificate Overlay */}
-                                <div className="absolute inset-0 z-20 pointer-events-none p-6 flex flex-col justify-between">
-                                    <div className="flex justify-between items-start">
-                                        <div className="bg-black/40 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 flex items-center gap-2">
-                                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                                                <Zap className="text-black" size={16} />
-                                            </div>
-                                            <span className="text-white font-bold tracking-tighter text-sm uppercase">Runlance AI</span>
-                                        </div>
-                                        <div className="bg-green-500/20 backdrop-blur-md px-4 py-2 rounded-full border border-green-500/30 flex items-center gap-2">
-                                            <CheckCircle size={14} className="text-green-400" />
-                                            <span className="text-green-400 text-[10px] font-bold tracking-widest uppercase">Certified Result</span>
-                                        </div>
+                        <h3 className="text-xl font-bold text-white tracking-tight mb-3">AI Video Feedback</h3>
+                        <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[200px]">
+                            Generate a personalized media reel of your session with AI-generated commentary.
+                        </p>
+                        
+                        <div className="w-full p-4 bg-white/[0.02] border border-white/10 rounded-2xl mb-8 relative group overflow-hidden text-left">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 bg-white text-black rounded-lg flex items-center justify-center">
+                                        <Zap size={16} fill="black" />
                                     </div>
-
-                                    <div className="space-y-4">
-                                        <div className="p-4 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 max-w-[280px]">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div>
-                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Interview Performance</p>
-                                                    <h4 className="text-lg font-bold text-white tracking-tight">{assignedPersona?.name}</h4>
-                                                </div>
-                                                <div className="text-right">
-                                                    <span className="text-3xl font-black text-white italic tracking-tighter">{score}</span>
-                                                    <span className="text-xs text-white/40 font-bold ml-1">/100</span>
-                                                </div>
-                                            </div>
-                                            
-                                            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                                <div 
-                                                    className="h-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-1000" 
-                                                    style={{ width: `${score}%` }} 
-                                                />
-                                            </div>
-                                            
-                                            <p className="mt-4 text-[10px] text-white/60 font-mono italic leading-relaxed">
-                                                "Demonstrated exceptional strategic thinking and technical clarity under pressure."
-                                            </p>
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-3 opacity-40">
-                                            <div className="h-[1px] flex-1 bg-white" />
-                                            <span className="text-[8px] font-bold text-white tracking-[0.3em] uppercase">Verified by Runway AI</span>
-                                            <div className="h-[1px] flex-1 bg-white" />
-                                        </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-white tracking-widest uppercase">Runlance</span>
+                                        <span className="text-[8px] font-bold text-white/40 tracking-widest uppercase">AI Engine</span>
                                     </div>
                                 </div>
-            
-                                {/* Picture in Picture Button for Mobile */}
-                                <button 
-                                    onClick={async () => {
-                                        const video = interviewReelRef.current as any;
-                                        if (!video) return;
-
-                                        try {
-                                            if ((document as any).pictureInPictureEnabled) {
-                                                if ((document as any).pictureInPictureElement) {
-                                                    await (document as any).exitPictureInPicture();
-                                                } else {
-                                                    await video.requestPictureInPicture();
-                                                }
-                                            } else if (video.webkitSetPresentationMode) {
-                                                // iOS Safari specific
-                                                const mode = video.webkitPresentationMode === "picture-in-picture" ? "inline" : "picture-in-picture";
-                                                video.webkitSetPresentationMode(mode);
-                                            }
-                                        } catch (e) {
-                                            console.error("PiP error:", e);
-                                        }
-                                    }}
-                                    className="absolute top-4 right-4 p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/20 text-white/60 hover:text-white transition-all z-20"
-                                    title="Picture in Picture"
-                                >
-                                    <div className="relative w-5 h-5 border-2 border-current rounded-sm">
-                                        <div className="absolute bottom-0 right-0 w-2 h-2 bg-current" />
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-end">
+                                    <div>
+                                        <p className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Interview Performance</p>
+                                        <h4 className="text-lg font-bold text-white tracking-tight leading-none">{assignedPersona?.name || 'Professional'}</h4>
                                     </div>
-                                </button>
-                             </div>
-                             <button 
-                                onClick={() => setVideoGenerated(false)}
-                                className="text-[10px] text-white/40 hover:text-white transition-colors uppercase font-bold tracking-widest"
-                             >
-                                Regenerate Reel
-                             </button>
+                                    <div className="text-right">
+                                        <span className="text-2xl font-bold text-white tracking-tighter">{score}</span>
+                                        <span className="text-[10px] text-gray-500 ml-1">/100</span>
+                                    </div>
+                                </div>
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-white rounded-full" style={{ width: `${score}%` }} />
+                                </div>
+                            </div>
                         </div>
-                      )}
-                  </div>
-              </BorderGlow>
+
+                        <button className="button2 w-full !py-3 text-[10px] tracking-[0.2em] uppercase font-bold !bg-transparent border border-white/10 hover:!bg-white/5 !text-white transition-all">
+                            Regenerate Reel
+                        </button>
+                    </div>
+                </div>
+            </BorderGlow>
           </div>
       </div>
 
@@ -805,7 +737,6 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
           onClick={() => {
             setScore(0);
             setTranscript([]);
-            setVideoGenerated(false);
           }}
           className="button2 px-12 !py-4"
         >

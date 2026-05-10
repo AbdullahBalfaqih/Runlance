@@ -1,3 +1,4 @@
+// Version 1.0.2 - Fixed ReferenceErrors
 import { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Phone, AlertCircle, CheckCircle, Send, MessageSquare, Sparkles, Trophy, Timer, Video, User, Briefcase, Zap } from 'lucide-react';
 import { FloatingPersona } from '@/components/floating-persona';
@@ -73,7 +74,7 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
   const [isGeneratingBackground, setIsGeneratingBackground] = useState(false);
   const [generationStep, setGenerationStep] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const interviewReelRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     // 1. Try to load cached persona first
@@ -668,7 +669,7 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                              <div className="aspect-video bg-white/5 rounded-2xl border border-white/10 overflow-hidden relative group">
                                 {/* Avatar Video with PiP Support */}
                                 <video
-                                    ref={videoRef}
+                                    ref={interviewReelRef}
                                     autoPlay
                                     muted
                                     loop
@@ -680,7 +681,7 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                                 {/* Picture in Picture Button for Mobile */}
                                 <button 
                                     onClick={async () => {
-                                        const video = videoRef.current as any;
+                                        const video = interviewReelRef.current as any;
                                         if (!video) return;
 
                                         try {

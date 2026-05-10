@@ -1,0 +1,310 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.985 0.002 90);
+  --foreground: oklch(0.12 0.01 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.12 0.01 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.12 0.01 60);
+  --primary: oklch(0.12 0.01 60);
+  --primary-foreground: oklch(0.985 0.002 90);
+  --secondary: oklch(0.96 0.005 90);
+  --secondary-foreground: oklch(0.12 0.01 60);
+  --muted: oklch(0.94 0.005 90);
+  --muted-foreground: oklch(0.45 0.02 60);
+  --accent: oklch(0.92 0.01 90);
+  --accent-foreground: oklch(0.12 0.01 60);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.88 0.01 90);
+  --input: oklch(0.92 0.01 90);
+  --ring: oklch(0.12 0.01 60);
+  --chart-1: oklch(0.12 0.01 60);
+  --chart-2: oklch(0.35 0.02 60);
+  --chart-3: oklch(0.55 0.02 60);
+  --chart-4: oklch(0.70 0.02 60);
+  --chart-5: oklch(0.85 0.01 60);
+  --radius: 0.25rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+@theme inline {
+  --font-sans: var(--font-instrument), 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), 'JetBrains Mono', monospace;
+  --font-display: var(--font-instrument-serif), 'Instrument Serif', Georgia, serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    overflow-x: hidden;
+    width: 100%;
+  }
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  
+  .text-stroke {
+    -webkit-text-stroke: 1.5px currentColor;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .marquee {
+    animation: marquee 30s linear infinite;
+  }
+  
+  .marquee-reverse {
+    animation: marquee-reverse 25s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  @keyframes marquee-reverse {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+  }
+  
+  .line-reveal {
+    clip-path: inset(0 100% 0 0);
+    animation: line-reveal 0.8s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+  }
+  
+  @keyframes line-reveal {
+    to { clip-path: inset(0 0 0 0); }
+  }
+  
+  .hover-lift {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+  
+  .letter-spin {
+    display: inline-block;
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .letter-spin:hover {
+    transform: rotateY(360deg);
+  }
+  
+  .animate-char-in {
+    animation: char-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    opacity: 0;
+    filter: blur(40px);
+    transform: translateY(100%);
+  }
+  
+  @keyframes char-in {
+    0% {
+      opacity: 0;
+      filter: blur(40px);
+      transform: translateY(100%);
+    }
+    100% {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
+    }
+  }
+
+  .noise-overlay {
+    position: relative;
+  }
+  
+  .noise-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .border-sketch {
+    border: 1px solid transparent;
+    background: 
+      linear-gradient(var(--background), var(--background)) padding-box,
+      linear-gradient(135deg, var(--foreground) 25%, transparent 25%, transparent 50%, var(--foreground) 50%, var(--foreground) 75%, transparent 75%) border-box;
+    background-size: 100% 100%, 8px 8px;
+  }
+
+  /* Custom styling for Runway ControlBar buttons */
+  .custom-control-bar, .custom-control-bar > div, .custom-control-bar div {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1.5rem !important;
+  }
+
+  .custom-control-bar button {
+    @apply flex items-center justify-center rounded-full transition-all duration-300;
+    display: flex !important;
+    width: 48px !important;
+    height: 48px !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background-color: #000000 !important;
+    color: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  }
+
+  .custom-control-bar button:hover {
+    background-color: #1a1a1a !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: translateY(-2px) scale(1.05);
+  }
+
+  .custom-control-bar button[aria-label*="End call"] {
+    background-color: #000000 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ef4444 !important; /* Keep red for end call but monochrome bg */
+  }
+
+  .custom-control-bar button[aria-label*="End call"]:hover {
+    background-color: #1a1a1a !important;
+    border-color: #ef4444 !important;
+  }
+
+  .custom-control-bar button svg {
+    width: 20px !important;
+    height: 20px !important;
+    stroke-width: 2;
+  }
+}
+
+.button2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  color: #090909;
+  padding: 0.7em 1.7em;
+  cursor: pointer;
+  font-size: 18px;
+  border-radius: 0.5em;
+  background: #e8e8e8;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.button2:active {
+  color: #666;
+  background: #d8d8d8;
+}
+
+.button2:before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) scaleY(1) scaleX(1.25);
+  top: 100%;
+  width: 140%;
+  height: 180%;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+  display: block;
+  transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
+  z-index: -1;
+}
+
+.button2:after {
+  content: "";
+  position: absolute;
+  left: 55%;
+  transform: translateX(-50%) scaleY(1) scaleX(1.45);
+  top: 180%;
+  width: 160%;
+  height: 190%;
+  background-color: #000000;
+  border-radius: 50%;
+  display: block;
+  transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
+  z-index: -1;
+}
+
+.button2:hover {
+  color: #ffffff;
+  border: 1px solid #000000;
+}
+
+.button2:hover:before {
+  top: -35%;
+  background-color: #000000;
+  transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
+}
+
+.button2:hover:after {
+  top: -45%;
+  background-color: #000000;
+  transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
+}

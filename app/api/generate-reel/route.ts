@@ -18,23 +18,21 @@ export async function POST(req: Request) {
     let task;
     try {
         if (inputImage) {
-            console.log("Using Image-to-Video with image:", inputImage.substring(0, 50) + "...");
-            // Use gen4_turbo for image-to-video as it's highly reliable
+            console.log("Using Image-to-Video (gen4_turbo) with image:", inputImage.substring(0, 50) + "...");
             task = await client.imageToVideo.create({
                 model: "gen4_turbo",
                 promptText: prompt,
                 promptImage: inputImage,
-                ratio: "16:9",
-                duration: 5,
+                ratio: "1280:720", // Reverting to explicit pixel ratio as requested by validation
+                duration: 6,      // Must be 4, 6, or 8 based on validation feedback
             });
         } else {
             console.log("No input image, using Text-to-Video fallback (veo3.1)");
-            // Use veo3.1 for text-to-video as gen3a_turbo is not available here
             task = await client.textToVideo.create({
                 model: "veo3.1",
                 promptText: prompt,
-                ratio: "16:9",
-                duration: 5,
+                ratio: "1280:720",
+                duration: 6,
             });
         }
     } catch (createError: any) {
@@ -49,8 +47,6 @@ export async function POST(req: Request) {
 
     console.log("Runway Video Task Created:", task.id);
 
-    // Polling for the video output using the SDK's waitForTaskOutput if possible
-    // or manual poll as fallback
     let result;
     try {
         if ((task as any).waitForTaskOutput) {

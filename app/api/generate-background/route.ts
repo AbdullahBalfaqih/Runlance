@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const task = await client.textToImage.create({
       promptText: prompt,
       model: "gen4_image",
-      ratio: "16:9",
+      ratio: "1280:720",
     });
 
     console.log("Runway Task Created:", task.id);

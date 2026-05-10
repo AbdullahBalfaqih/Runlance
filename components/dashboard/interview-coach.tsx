@@ -73,6 +73,7 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
   const [isGeneratingBackground, setIsGeneratingBackground] = useState(false);
   const [generationStep, setGenerationStep] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     // 1. Try to load cached persona first

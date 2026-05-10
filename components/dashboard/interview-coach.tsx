@@ -128,9 +128,9 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
       const personaData = {
         name: data.persona,
         avatarId: data.avatarId || 'a42f41bf-b379-4544-bc19-58f35c489726',
-        imageUrl: data.persona === 'Engineering Lead' ? 'https://cdn.runwayml.com/avatars/engineer.png' : 
-                  data.persona === 'Creative Director' ? 'https://cdn.runwayml.com/avatars/designer.png' : 
-                  'https://cdn.runwayml.com/avatars/business.png',
+        imageUrl: data.persona === 'Engineering Lead' ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop' : 
+                  data.persona === 'Creative Director' ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop' : 
+                  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
         personality: data.personality,
         reasoning: data.reasoning,
         backgroundPrompt: data.backgroundPrompt
@@ -256,7 +256,10 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
         })
       });
 
-      if (!response.ok) throw new Error('Failed to generate reel');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || errorData.error || 'Failed to generate reel');
+      }
       const data = await response.json();
 
       if (data.videoUrl) {

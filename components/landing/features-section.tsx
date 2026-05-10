@@ -80,6 +80,17 @@ function DeployVisual() {
   );
 }
 
+// Pre-compute node positions once to guarantee identical values on server & client
+const AI_NODES = [0, 1, 2, 3, 4, 5].map((i) => {
+  const angle = (i * 60) * (Math.PI / 180);
+  const radius = 50;
+  return {
+    x2: parseFloat((100 + Math.cos(angle) * radius).toFixed(4)),
+    y2: parseFloat((80  + Math.sin(angle) * radius).toFixed(4)),
+    delay: `${i * 0.3}s`,
+  };
+});
+
 function AIVisual() {
   return (
     <svg viewBox="0 0 200 160" className="w-full h-full">
@@ -87,54 +98,27 @@ function AIVisual() {
       <circle cx="100" cy="80" r="12" fill="currentColor">
         <animate attributeName="r" values="12;14;12" dur="2s" repeatCount="indefinite" />
       </circle>
-      
+
       {/* Orbiting nodes */}
-      {[0, 1, 2, 3, 4, 5].map((i) => {
-        const angle = (i * 60) * (Math.PI / 180);
-        const radius = 50;
-        return (
-          <g key={i}>
-            {/* Connection line */}
-            <line
-              x1="100"
-              y1="80"
-              x2={100 + Math.cos(angle) * radius}
-              y2={80 + Math.sin(angle) * radius}
-              stroke="currentColor"
-              strokeWidth="1"
-              opacity="0.3"
-            >
-              <animate
-                attributeName="opacity"
-                values="0.3;0.8;0.3"
-                dur="2s"
-                begin={`${i * 0.3}s`}
-                repeatCount="indefinite"
-              />
-            </line>
-            
-            {/* Outer node */}
-            <circle
-              cx={100 + Math.cos(angle) * radius}
-              cy={80 + Math.sin(angle) * radius}
-              r="6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <animate
-                attributeName="r"
-                values="6;8;6"
-                dur="2s"
-                begin={`${i * 0.3}s`}
-                repeatCount="indefinite"
-              />
-            </circle>
-          </g>
-        );
-      })}
-      
-      {/* Pulse rings */}
+      {AI_NODES.map((node, i) => (
+        <g key={i}>
+          <line
+            x1="100" y1="80"
+            x2={node.x2} y2={node.y2}
+            stroke="currentColor" strokeWidth="1" opacity="0.3"
+          >
+            <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin={node.delay} repeatCount="indefinite" />
+          </line>
+          <circle
+            cx={node.x2} cy={node.y2}
+            r="6" fill="none" stroke="currentColor" strokeWidth="2"
+          >
+            <animate attributeName="r" values="6;8;6" dur="2s" begin={node.delay} repeatCount="indefinite" />
+          </circle>
+        </g>
+      ))}
+
+      {/* Pulse ring */}
       <circle cx="100" cy="80" r="30" fill="none" stroke="currentColor" strokeWidth="1" opacity="0">
         <animate attributeName="r" values="20;60" dur="2s" repeatCount="indefinite" />
         <animate attributeName="opacity" values="0.5;0" dur="2s" repeatCount="indefinite" />

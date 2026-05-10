@@ -110,8 +110,18 @@ export function FloatingPersona({ persona, analysis }: Props) {
         }
       })
     });
-    if (!response.ok) throw new Error(`Failed to connect: ${response.status} ${await response.text()}`);
-    return response.json();
+    const data = await response.json().catch(() => ({}));
+
+    if (response.status === 429 && (data as any).quotaExceeded) {
+      setLiveAvatar(false);
+      setAvatarError('Daily session limit reached. Please try again tomorrow.');
+      throw new Error('QUOTA_EXCEEDED');
+    }
+
+    if (!response.ok) {
+      throw new Error((data as any).error || `Failed to connect: ${response.status}`);
+    }
+    return data;
   }, [persona.personality, resumeMemory, screenStream]);
 
   useEffect(() => {
@@ -291,7 +301,7 @@ export function FloatingPersona({ persona, analysis }: Props) {
                 video={false}
                 initialScreenStream={screenStream ?? undefined}
                 avatarImageUrl={persona.imageUrl}
-                onError={(error) => setAvatarError(error.message)}
+                onError={(error) => { if (error.message !== 'QUOTA_EXCEEDED') setAvatarError(error.message); }}
                 className="overflow-hidden rounded-2xl border border-white/10 bg-white/5"
               >
                 <div ref={videoContainerRef} className="flex-grow relative overflow-hidden rounded-2xl bg-black/40 runlance-avatar-container">
@@ -332,18 +342,33 @@ export function FloatingPersona({ persona, analysis }: Props) {
                   Start Runlance Coach
                 </button>
                 
-                {resumeMemory && (
-                  <button 
-                    className="button2 w-full flex items-center justify-center gap-2 !py-3 !text-xs"
-                    data-no-drag
-                    onClick={async () => {
-                      setAutoAnalyze(true);
-                      setLiveAvatar(true);
-                    }}
-                  >
-                    <Sparkles size={14} />
-                    Analyze My Resume
-                  </button>
+                <button 
+                  className="button2 w-full flex items-center justify-center gap-2 !py-3 !text-xs"
+                  data-no-drag
+                  onClick={async () => {
+                    if (!resumeMemory) {
+                      // No resume — guide the user instead of launching session
+                      return;
+                    }
+                    setAutoAnalyze(true);
+                    setLiveAvatar(true);
+                  }}
+                >
+                  <Sparkles size={14} />
+                  Analyze My Resume
+                </button>
+                {!resumeMemory && (
+                  <p className="text-[10px] text-amber-400/80 text-center leading-relaxed px-1">
+                    📎 يرجى رفع سيرتك الذاتية من{' '}
+                    <a
+                      href="/dashboard"
+                      className="underline underline-offset-2 text-amber-300 hover:text-amber-200"
+                      data-no-drag
+                    >
+                      لوحة التحكم
+                    </a>
+                    {' '}أولاً حتى أتمكن من تحليلها.
+                  </p>
                 )}
 
                 {jobInputMode ? (

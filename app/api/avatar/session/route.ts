@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import RunwayML from '@runwayml/sdk';
 import { consumeSession } from '@runwayml/avatars-react/api';
 
-const uuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function avatarReference(avatarId: string) {
-  // Using 'human-resource' as the valid preset ID for the HR interviewer
   const defaultPreset = 'human-resource';
-  if (!avatarId || avatarId === 'a42f41bf-b379-4544-bc19-58f35c489726') {
+  if (!avatarId) {
     return { type: 'runway-preset' as const, presetId: defaultPreset };
   }
   return uuidLike.test(avatarId)
@@ -53,6 +52,17 @@ export async function POST(request: NextRequest) {
 
       sessionResponse = await client.realtimeSessions.create(sessionConfig);
     } catch (createError: any) {
+      const statusCode = createError?.status ?? createError?.statusCode ?? 0;
+      const isQuota = statusCode === 429 || createError.message?.includes('daily task limit') || createError.message?.includes('rate limit');
+
+      if (isQuota) {
+        console.warn('[Avatar API] Daily quota exceeded — signalling client to use widget fallback.');
+        return NextResponse.json(
+          { quotaExceeded: true, error: 'Daily limit reached. Falling back to widget.' },
+          { status: 429 }
+        );
+      }
+
       console.error('[Avatar API] Runway Create Session Error:', createError.message, createError.stack);
       return NextResponse.json(
         { error: `Runway failed to create session: ${createError.message}` },

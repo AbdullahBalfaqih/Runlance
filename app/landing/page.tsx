@@ -1,4 +1,5 @@
 import { HeroSection } from '@/components/landing/hero-section';
+import { PhoneShowcaseSection } from '@/components/landing/phone-showcase-section';
 import { FeaturesSection } from '@/components/landing/features-section';
 import { HowItWorksSection } from '@/components/landing/how-it-works-section';
 import { MetricsSection } from '@/components/landing/metrics-section';
@@ -19,6 +20,7 @@ export default function LandingPage() {
       <Navigation />
       <main className="flex-grow">
         <HeroSection />
+        <PhoneShowcaseSection />
         <MetricsSection />
         <FeaturesSection />
         <HowItWorksSection />

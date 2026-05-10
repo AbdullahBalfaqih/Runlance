@@ -403,7 +403,14 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
             </div>
           </div>
 
-          <div className="flex-1 relative bg-black overflow-hidden">
+          <div 
+            className="flex-1 relative overflow-hidden transition-all duration-1000 bg-black"
+            style={backgroundUrl ? { 
+              backgroundImage: `url(${backgroundUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            } : {}}
+          >
             <AvatarCall
               avatarId={assignedPersona?.avatarId}
               connect={async (avatarId) => {

@@ -26,6 +26,35 @@ export function FloatingPersona({ persona, analysis }: Props) {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isResizing, setIsResizing] = useState(false);
   const [autoAnalyze, setAutoAnalyze] = useState(false);
+  const videoContainerRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      const video = node.querySelector('video');
+      if (video) {
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('webkit-playsinline', 'true');
+      }
+    }
+  }, []);
+
+  const triggerPiP = async () => {
+    const video = document.querySelector('.runlance-avatar-container video') as any;
+    if (!video) return;
+
+    try {
+      if ((document as any).pictureInPictureEnabled) {
+        if ((document as any).pictureInPictureElement) {
+          await (document as any).exitPictureInPicture();
+        } else {
+          await video.requestPictureInPicture();
+        }
+      } else if (video.webkitSetPresentationMode) {
+        const mode = video.webkitPresentationMode === "picture-in-picture" ? "inline" : "picture-in-picture";
+        video.webkitSetPresentationMode(mode);
+      }
+    } catch (e) {
+      console.error("Assistant PiP error:", e);
+    }
+  };
 
   const phrase = useMemo(() => {
     if (!speaking) return 'Paused. I am still watching the role context.';
@@ -211,17 +240,31 @@ export function FloatingPersona({ persona, analysis }: Props) {
                   <h3 className="text-base font-display font-bold text-white tracking-tight">Runlance Assistant</h3>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  setLiveAvatar(false);
-                }}
-                data-no-drag
-                className="p-2 hover:bg-white/5 text-gray-400 hover:text-white rounded-xl transition-all"
-                aria-label="Close"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                {liveAvatar && (
+                  <button
+                    onClick={triggerPiP}
+                    data-no-drag
+                    className="p-2 hover:bg-white/5 text-gray-400 hover:text-white rounded-xl transition-all"
+                    title="Picture in Picture"
+                  >
+                    <div className="relative w-4 h-4 border-2 border-current rounded-sm">
+                      <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-current" />
+                    </div>
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    setLiveAvatar(false);
+                  }}
+                  data-no-drag
+                  className="p-2 hover:bg-white/5 text-gray-400 hover:text-white rounded-xl transition-all"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -238,7 +281,7 @@ export function FloatingPersona({ persona, analysis }: Props) {
                 onError={(error) => setAvatarError(error.message)}
                 className="overflow-hidden rounded-2xl border border-white/10 bg-white/5"
               >
-                <div className="flex-grow relative overflow-hidden rounded-2xl bg-black/40">
+                <div ref={videoContainerRef} className="flex-grow relative overflow-hidden rounded-2xl bg-black/40 runlance-avatar-container">
                   <AvatarVideo className="w-full h-full object-cover" />
                 </div>
                 <div className="border-t border-white/10 bg-black/90 p-4 flex justify-center custom-control-bar">

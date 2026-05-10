@@ -661,6 +661,8 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                                 <video
                                     ref={videoRef}
                                     autoPlay
+                                    muted
+                                    loop
                                     playsInline
                                     className="w-full h-full object-cover"
                                     src="https://cdn.runwayml.com/marketing/Runway_Gen-3_Alpha_Demo.mp4"
@@ -669,19 +671,20 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                                 {/* Picture in Picture Button for Mobile */}
                                 <button 
                                     onClick={async () => {
+                                        const video = videoRef.current as any;
+                                        if (!video) return;
+
                                         try {
-                                            if (videoRef.current && (document as any).pictureInPictureEnabled) {
+                                            if ((document as any).pictureInPictureEnabled) {
                                                 if ((document as any).pictureInPictureElement) {
                                                     await (document as any).exitPictureInPicture();
                                                 } else {
-                                                    await (videoRef.current as any).requestPictureInPicture();
+                                                    await video.requestPictureInPicture();
                                                 }
-                                            } else if ((videoRef.current as any).webkitSetPresentationMode) {
-                                                (videoRef.current as any).webkitSetPresentationMode(
-                                                    (videoRef.current as any).webkitPresentationMode === "picture-in-picture" 
-                                                    ? "inline" 
-                                                    : "picture-in-picture"
-                                                );
+                                            } else if (video.webkitSetPresentationMode) {
+                                                // iOS Safari specific
+                                                const mode = video.webkitPresentationMode === "picture-in-picture" ? "inline" : "picture-in-picture";
+                                                video.webkitSetPresentationMode(mode);
                                             }
                                         } catch (e) {
                                             console.error("PiP error:", e);

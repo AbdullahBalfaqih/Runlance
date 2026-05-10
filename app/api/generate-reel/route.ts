@@ -19,74 +19,58 @@ export async function POST(req: Request) {
     try {
         if (inputImage) {
             console.log("Using Image-to-Video with image:", inputImage.substring(0, 50) + "...");
-            // Based on error logs, ratio must be "16:9" and promptImage might expect a string or specific array
+            // Use gen4_turbo for image-to-video as it's highly reliable
             task = await client.imageToVideo.create({
-                model: "veo3.1",
+                model: "gen4_turbo",
                 promptText: prompt,
-                promptImage: inputImage, // Try as string directly as per common SDK patterns
+                promptImage: inputImage,
                 ratio: "16:9",
                 duration: 5,
             });
         } else {
-            console.log("No input image, using Text-to-Video fallback");
-            // Use the correct Text-to-Video endpoint if no image is present
-            task = await (client as any).textToVideo.create({
-                model: "gen3a_turbo",
+            console.log("No input image, using Text-to-Video fallback (veo3.1)");
+            // Use veo3.1 for text-to-video as gen3a_turbo is not available here
+            task = await client.textToVideo.create({
+                model: "veo3.1",
                 promptText: prompt,
                 ratio: "16:9",
+                duration: 5,
             });
         }
     } catch (createError: any) {
         console.error("Error creating Runway task:", createError);
-        // If it still fails with promptImage as string, try the array structure but with 16:9
-        if (inputImage && createError.message?.includes("promptImage")) {
-             console.log("Retrying with array structure for promptImage...");
-             task = await client.imageToVideo.create({
-                model: "veo3.1",
-                promptText: prompt,
-                promptImage: [
-                    {
-                        uri: inputImage,
-                        position: "first"
-                    }
-                ],
-                ratio: "16:9",
-                duration: 5,
-            } as any);
-        } else {
-            return NextResponse.json({ 
-                error: "Validation failed during task creation", 
-                details: createError.message || createError 
-            }, { status: 400 });
-        }
+        return NextResponse.json({ 
+            error: "Validation failed during task creation", 
+            details: createError.message || createError 
+        }, { status: 400 });
     }
 
     if (!task) throw new Error("Failed to initialize task");
 
     console.log("Runway Video Task Created:", task.id);
 
-    // Polling for the video output
+    // Polling for the video output using the SDK's waitForTaskOutput if possible
+    // or manual poll as fallback
     let result;
-    let attempts = 0;
-    while (attempts < 60) {
-        try {
-            const poll = await client.tasks.retrieve(task.id);
-            if (poll.status === "SUCCEEDED") {
-                result = poll;
-                break;
+    try {
+        if ((task as any).waitForTaskOutput) {
+            result = await (task as any).waitForTaskOutput();
+        } else {
+            let attempts = 0;
+            while (attempts < 60) {
+                const poll = await client.tasks.retrieve(task.id);
+                if (poll.status === "SUCCEEDED") {
+                    result = poll;
+                    break;
+                }
+                if (poll.status === "FAILED") throw new Error("Video task failed: " + JSON.stringify(poll.error));
+                await new Promise(r => setTimeout(r, 3000));
+                attempts++;
             }
-            if (poll.status === "FAILED") {
-                console.error("Task failed details:", poll.error);
-                throw new Error("Video task failed: " + JSON.stringify(poll.error));
-            }
-            
-            console.log(`Polling task ${task.id}... status: ${poll.status} (${poll.progress || 0}%)`);
-            await new Promise(r => setTimeout(r, 3000));
-            attempts++;
-        } catch (pollError: any) {
-            console.error("Error polling task:", pollError);
-            throw pollError;
         }
+    } catch (pollError: any) {
+        console.error("Error waiting for task:", pollError);
+        throw pollError;
     }
 
     if (result && result.output && result.output.length > 0) {

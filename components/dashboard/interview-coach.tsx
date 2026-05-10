@@ -71,6 +71,7 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
   const [isGeneratingBackground, setIsGeneratingBackground] = useState(false);
+  const [generationStep, setGenerationStep] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

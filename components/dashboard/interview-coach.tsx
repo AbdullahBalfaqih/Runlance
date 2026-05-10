@@ -434,12 +434,15 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
           </div>
 
           <div 
-            className="flex-1 relative overflow-hidden transition-all duration-1000 bg-black"
+            className="flex-1 relative overflow-hidden transition-all duration-1000 bg-[#0a0a0a]"
             style={backgroundUrl ? { 
-              backgroundImage: `url(${backgroundUrl})`,
+              backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url(${backgroundUrl})`,
               backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            } : {}}
+              backgroundPosition: 'center',
+              boxShadow: 'inset 0 0 100px rgba(0,0,0,0.8)'
+            } : {
+              background: 'radial-gradient(circle at center, #1a1a1a 0%, #000000 100%)'
+            }}
           >
             <AvatarCall
               avatarId={assignedPersona?.avatarId}
@@ -705,6 +708,54 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                                     className="w-full h-full object-cover"
                                     src={(window as any).runlanceGeneratedVideoUrl || "https://cdn.runwayml.com/marketing/Runway_Gen-3_Alpha_Demo.mp4"}
                                 />
+
+                                {/* Interactive Result Certificate Overlay */}
+                                <div className="absolute inset-0 z-20 pointer-events-none p-6 flex flex-col justify-between">
+                                    <div className="flex justify-between items-start">
+                                        <div className="bg-black/40 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 flex items-center gap-2">
+                                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                                                <Zap className="text-black" size={16} />
+                                            </div>
+                                            <span className="text-white font-bold tracking-tighter text-sm uppercase">Runlance AI</span>
+                                        </div>
+                                        <div className="bg-green-500/20 backdrop-blur-md px-4 py-2 rounded-full border border-green-500/30 flex items-center gap-2">
+                                            <CheckCircle size={14} className="text-green-400" />
+                                            <span className="text-green-400 text-[10px] font-bold tracking-widest uppercase">Certified Result</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="p-4 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 max-w-[280px]">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div>
+                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Interview Performance</p>
+                                                    <h4 className="text-lg font-bold text-white tracking-tight">{assignedPersona?.name}</h4>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-3xl font-black text-white italic tracking-tighter">{score}</span>
+                                                    <span className="text-xs text-white/40 font-bold ml-1">/100</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                                <div 
+                                                    className="h-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-1000" 
+                                                    style={{ width: `${score}%` }} 
+                                                />
+                                            </div>
+                                            
+                                            <p className="mt-4 text-[10px] text-white/60 font-mono italic leading-relaxed">
+                                                "Demonstrated exceptional strategic thinking and technical clarity under pressure."
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3 opacity-40">
+                                            <div className="h-[1px] flex-1 bg-white" />
+                                            <span className="text-[8px] font-bold text-white tracking-[0.3em] uppercase">Verified by Runway AI</span>
+                                            <div className="h-[1px] flex-1 bg-white" />
+                                        </div>
+                                    </div>
+                                </div>
             
                                 {/* Picture in Picture Button for Mobile */}
                                 <button 

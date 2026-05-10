@@ -187,6 +187,9 @@ export function FloatingPersona({ persona, analysis }: Props) {
   async function startWithScreenShare() {
     setAvatarError(null);
     try {
+      if (!navigator.mediaDevices.getDisplayMedia) {
+        throw new Error('Screen sharing is not supported on mobile devices. Please use a desktop browser.');
+      }
       const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
       stream.getVideoTracks()[0]?.addEventListener('ended', () => setScreenStream(null));
       setScreenStream(stream);
@@ -309,6 +312,7 @@ export function FloatingPersona({ persona, analysis }: Props) {
               <div className="space-y-2">
                 <button 
                   className="button2 w-full flex items-center justify-center gap-2 !py-3 !text-xs"
+                  data-no-drag
                   onClick={async () => {
                     setAutoAnalyze(false);
                     setLiveAvatar(true);
@@ -321,6 +325,7 @@ export function FloatingPersona({ persona, analysis }: Props) {
                 {resumeMemory && (
                   <button 
                     className="button2 w-full flex items-center justify-center gap-2 !py-3 !text-xs"
+                    data-no-drag
                     onClick={async () => {
                       setAutoAnalyze(true);
                       setLiveAvatar(true);
@@ -334,6 +339,7 @@ export function FloatingPersona({ persona, analysis }: Props) {
                 <div className="grid grid-cols-2 gap-2">
                   <button 
                     className="button2 flex items-center justify-center gap-2 !py-2.5 !text-[10px]"
+                    data-no-drag
                     onClick={startWithScreenShare}
                   >
                     <MonitorUp size={12} />
@@ -341,6 +347,7 @@ export function FloatingPersona({ persona, analysis }: Props) {
                   </button>
                   <button 
                     className="button2 flex items-center justify-center gap-2 !py-2.5 !text-[10px]"
+                    data-no-drag
                     onClick={() => setSpeaking(!speaking)}
                   >
                     {speaking ? <Mic size={12} /> : <Mic size={12} className="text-rose-500" />}

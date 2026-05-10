@@ -231,22 +231,47 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
   };
 
   const generateVideoFeedback = async () => {
-    setIsVideoGenerating(true);
-    const steps = [
-      "Analyzing transcript nuances...",
-      "Synthesizing coach personality...",
-      "Mapping performance to visual cues...",
-      "Rendering final feedback reel...",
-      "Encoding media..."
-    ];
-
-    for (const step of steps) {
-      setGenerationStep(step);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-    }
+    if (!assignedPersona) return;
     
-    setIsVideoGenerating(false);
-    setVideoGenerated(true);
+    setIsVideoGenerating(true);
+    setVideoGenerated(false);
+    
+    try {
+      const steps = [
+        "Synthesizing interview transcript...",
+        "Applying cinematic lighting to environment...",
+        "Orchestrating Runway veo3.1 video engine...",
+        "Finalizing high-fidelity encoding..."
+      ];
+
+      // We'll update the text UI as we go, but also trigger the actual API
+      setGenerationStep(steps[0]);
+
+      const response = await fetch('/api/generate-reel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `Cinematic pan of a professional ${assignedPersona.name} office, hyper-realistic, 8k, dramatic lighting, subtle motion`,
+          inputImage: backgroundUrl
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to generate reel');
+      const data = await response.json();
+
+      if (data.videoUrl) {
+        // Find the video element and set its src if it exists, or just set the state
+        setVideoGenerated(true);
+        // We'll update the video tag below to use this URL
+        (window as any).runlanceGeneratedVideoUrl = data.videoUrl;
+      }
+
+    } catch (err) {
+      console.error("Reel generation error:", err);
+      setGenerationStep("Generation failed. Please try again.");
+    } finally {
+      setIsVideoGenerating(false);
+    }
   };
 
   if (isGeneratingResults) {
@@ -675,7 +700,7 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                                     loop
                                     playsInline
                                     className="w-full h-full object-cover"
-                                    src="https://cdn.runwayml.com/marketing/Runway_Gen-3_Alpha_Demo.mp4"
+                                    src={(window as any).runlanceGeneratedVideoUrl || "https://cdn.runwayml.com/marketing/Runway_Gen-3_Alpha_Demo.mp4"}
                                 />
             
                                 {/* Picture in Picture Button for Mobile */}

@@ -13,43 +13,47 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No prompt provided" }, { status: 400 });
     }
 
-    console.log("Triggering Runway Background Generation:", prompt);
+    console.log("Triggering Runway Background Generation (SDK v3):", prompt);
 
-    // Triggering Image Generation
-    const imageTask = await client.imageGenerations.create({
-      model: "gen4_image", // Using high quality Gen-4 image model
-      prompt: prompt,
-      width: 1280,
-      height: 720
+    // Using the user's suggested SDK pattern for Image Generation
+    const task = await client.textToImage.create({
+      promptText: prompt,
+      model: "gen4_image",
+      ratio: "1280:720", // Dashboard compatible ratio
     });
 
-    const taskId = imageTask.id;
-    console.log("Runway Task ID:", taskId);
+    console.log("Runway Task Created:", task.id);
 
-    // Polling logic (keeping it simple for hackathon)
-    let taskStatus;
-    let attempts = 0;
-    while (attempts < 20) {
-      taskStatus = await client.tasks.retrieve(taskId);
-      if (taskStatus.status === "SUCCEEDED") {
-        return NextResponse.json({ 
-          imageUrl: taskStatus.output?.[0], 
-          status: "success" 
-        });
-      }
-      if (taskStatus.status === "FAILED") {
-        throw new Error("Runway task failed");
-      }
-      
-      console.log(`Polling task ${taskId}... status: ${taskStatus.status}`);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      attempts++;
+    // Using waitForTaskOutput if supported, otherwise manual poll as fallback
+    let result;
+    if ((task as any).waitForTaskOutput) {
+      result = await (task as any).waitForTaskOutput();
+    } else {
+       // Fallback manual poll if the SDK version is slightly different
+       let attempts = 0;
+       while (attempts < 30) {
+         const poll = await client.tasks.retrieve(task.id);
+         if (poll.status === "SUCCEEDED") {
+           result = poll;
+           break;
+         }
+         if (poll.status === "FAILED") throw new Error("Task failed");
+         await new Promise(r => setTimeout(r, 2000));
+         attempts++;
+       }
     }
 
-    return NextResponse.json({ error: "Generation timed out" }, { status: 408 });
+    if (result && result.output && result.output.length > 0) {
+      return NextResponse.json({ 
+        imageUrl: result.output[0], 
+        status: "success" 
+      });
+    }
+
+    throw new Error("No output from Runway");
 
   } catch (error: any) {
-    console.error("Runway Generation Error:", error.message || error);
+    console.error("Runway SDK Error:", error.message || error);
     return NextResponse.json({ error: "Failed to generate background" }, { status: 500 });
   }
 }

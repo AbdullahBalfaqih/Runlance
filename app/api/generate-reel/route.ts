@@ -15,14 +15,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No prompt provided" }, { status: 400 });
     }
 
-    // Ensure we have a valid model name. The user suggested 'veo3.1'
-    // Let's try to use 'gen3a_turbo' as a fallback if veo3.1 fails or isn't available
-    
     let task;
     try {
         if (inputImage) {
             console.log("Using Image-to-Video with image:", inputImage.substring(0, 50) + "...");
+            // Based on error logs, ratio must be "16:9" and promptImage might expect a string or specific array
             task = await client.imageToVideo.create({
+                model: "veo3.1",
+                promptText: prompt,
+                promptImage: inputImage, // Try as string directly as per common SDK patterns
+                ratio: "16:9",
+                duration: 5,
+            });
+        } else {
+            console.log("No input image, using Text-to-Video fallback");
+            // Use the correct Text-to-Video endpoint if no image is present
+            task = await (client as any).textToVideo.create({
+                model: "gen3a_turbo",
+                promptText: prompt,
+                ratio: "16:9",
+            });
+        }
+    } catch (createError: any) {
+        console.error("Error creating Runway task:", createError);
+        // If it still fails with promptImage as string, try the array structure but with 16:9
+        if (inputImage && createError.message?.includes("promptImage")) {
+             console.log("Retrying with array structure for promptImage...");
+             task = await client.imageToVideo.create({
+                model: "veo3.1",
                 promptText: prompt,
                 promptImage: [
                     {
@@ -30,27 +50,18 @@ export async function POST(req: Request) {
                         position: "first"
                     }
                 ],
-                model: "veo3.1",
-                ratio: "1280:720",
+                ratio: "16:9",
                 duration: 5,
-            });
+            } as any);
         } else {
-            console.log("No input image, using Text-to-Video fallback");
-            // If textToVideo is not directly available, we try imageToVideo with just prompt
-            // or the specific textToVideo endpoint if exists in this SDK version
-            task = await (client as any).imageToVideo.create({
-                promptText: prompt,
-                model: "gen3a_turbo",
-                ratio: "1280:720",
-            });
+            return NextResponse.json({ 
+                error: "Validation failed during task creation", 
+                details: createError.message || createError 
+            }, { status: 400 });
         }
-    } catch (createError: any) {
-        console.error("Error creating Runway task:", createError);
-        return NextResponse.json({ 
-            error: "Failed to create Runway task", 
-            details: createError.message || createError 
-        }, { status: 500 });
     }
+
+    if (!task) throw new Error("Failed to initialize task");
 
     console.log("Runway Video Task Created:", task.id);
 

@@ -74,7 +74,7 @@ export function VoicePractice() {
       }
       
       const data = await response.json();
-      return data.credentials;
+      return data;
     } catch (err: any) {
       console.error('Call connection error:', err);
       setError(err.message);
@@ -92,9 +92,12 @@ export function VoicePractice() {
             <AvatarCall
               avatarId="human-resource"
               connect={connectAvatar}
-              audio
-              video={false}
-              onError={(err) => setError(err.message)}
+              audio={true}
+              video={true}
+              onError={(err) => {
+                console.error('AvatarCall error:', err);
+                setError(err.message);
+              }}
             >
                 <AvatarVideo />
             </AvatarCall>

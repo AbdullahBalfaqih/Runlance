@@ -12,6 +12,7 @@ import BorderGlow from '@/components/ui/border-glow';
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const navItems = [
@@ -28,23 +29,31 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         <Silk speed={5} scale={1} color="#7B7481" noiseIntensity={1.5} rotation={0} />
       </div>
       
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[40] md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
-        className={`bg-black/80 backdrop-blur-xl text-white transition-all duration-300 flex flex-col z-20 border-r border-white/10 ${
+        className={`bg-black/95 backdrop-blur-2xl text-white transition-all duration-500 flex flex-col z-[50] border-r border-white/10 fixed md:relative h-screen ${
           sidebarOpen ? 'w-64' : 'w-20'
-        }`}
+        } ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       >
         {/* Header */}
-        <div className={`flex items-center p-4 border-b border-white/10 ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
-          {sidebarOpen && (
-            <div className="flex items-center gap-2">
+        <div className={`flex items-center p-6 border-b border-white/10 ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
+          {(sidebarOpen || isMobileMenuOpen) && (
+            <div className="flex items-center gap-3">
               <img src="/logo-white.png" alt="Runlance Logo" className="w-10 h-10 object-contain" />
-              <span className="font-semibold text-lg tracking-tight">Runlance</span>
+              <span className="font-bold text-xl tracking-tighter">Runlance</span>
             </div>
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-1 hover:bg-white/5 rounded transition"
+            className="p-2 hover:bg-white/10 rounded-xl transition-colors hidden md:block"
           >
             <Menu size={20} />
           </button>
@@ -81,7 +90,21 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto z-10 relative">
-        <div className="max-w-7xl mx-auto p-6 md:p-8">
+        {/* Mobile Header Toggle */}
+        <div className="md:hidden flex items-center p-4 border-b border-white/5 bg-black/50 backdrop-blur-lg sticky top-0 z-30">
+          <button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 bg-white/5 rounded-lg border border-white/10"
+          >
+            <Menu size={20} className="text-white" />
+          </button>
+          <div className="ml-4 flex items-center gap-2">
+            <img src="/logo-white.png" alt="Runlance" className="w-6 h-6 object-contain" />
+            <span className="font-bold text-sm tracking-tight">Runlance</span>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto p-4 md:p-8 lg:p-12">
           {children}
         </div>
       </main>

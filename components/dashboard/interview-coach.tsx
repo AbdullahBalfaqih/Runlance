@@ -282,7 +282,7 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                 <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-full">
                     <span className="text-[10px] font-bold tracking-widest text-white/60">Runway Agentic Intelligence</span>
                 </div>
-                <h1 className="text-6xl font-bold text-white tracking-tighter leading-tight">
+                <h1 className="text-4xl sm:text-6xl font-bold text-white tracking-tighter leading-tight">
                     Your Personal <br /> <span className="text-white/40">AI Coach.</span>
                 </h1>
                 <p className="text-gray-400 text-xl max-w-md leading-relaxed">
@@ -657,11 +657,43 @@ export function InterviewCoach({ personaId }: InterviewCoachProps) {
                       ) : (
                         <div className="w-full space-y-4 animate-in fade-in zoom-in duration-500">
                              <div className="aspect-video bg-white/5 rounded-2xl border border-white/10 overflow-hidden relative group">
-                                 <video 
-                                    className="w-full h-full object-cover grayscale"
+                                {/* Avatar Video with PiP Support */}
+                                <video
+                                    ref={videoRef}
+                                    autoPlay
+                                    playsInline
+                                    className="w-full h-full object-cover"
                                     src="https://cdn.runwayml.com/marketing/Runway_Gen-3_Alpha_Demo.mp4"
-                                    controls
-                                 />
+                                />
+            
+                                {/* Picture in Picture Button for Mobile */}
+                                <button 
+                                    onClick={async () => {
+                                        try {
+                                            if (videoRef.current && (document as any).pictureInPictureEnabled) {
+                                                if ((document as any).pictureInPictureElement) {
+                                                    await (document as any).exitPictureInPicture();
+                                                } else {
+                                                    await (videoRef.current as any).requestPictureInPicture();
+                                                }
+                                            } else if ((videoRef.current as any).webkitSetPresentationMode) {
+                                                (videoRef.current as any).webkitSetPresentationMode(
+                                                    (videoRef.current as any).webkitPresentationMode === "picture-in-picture" 
+                                                    ? "inline" 
+                                                    : "picture-in-picture"
+                                                );
+                                            }
+                                        } catch (e) {
+                                            console.error("PiP error:", e);
+                                        }
+                                    }}
+                                    className="absolute top-4 right-4 p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/20 text-white/60 hover:text-white transition-all z-20"
+                                    title="Picture in Picture"
+                                >
+                                    <div className="relative w-5 h-5 border-2 border-current rounded-sm">
+                                        <div className="absolute bottom-0 right-0 w-2 h-2 bg-current" />
+                                    </div>
+                                </button>
                              </div>
                              <button 
                                 onClick={() => setVideoGenerated(false)}

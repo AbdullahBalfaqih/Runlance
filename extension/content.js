@@ -42,6 +42,11 @@ function extractJobData() {
     return extractAngelListJob();
   }
 
+  // Bayt.com
+  if (url.includes('bayt.com')) {
+    return extractBaytJob();
+  }
+
   return null;
 }
 
@@ -173,6 +178,28 @@ function extractAngelListJob() {
   }
 }
 
+function extractBaytJob() {
+  try {
+    const title = document.querySelector('h1')?.textContent || document.querySelector('.job-title')?.textContent || 'Job Title';
+    const company = document.querySelector('.t-bold')?.textContent || document.querySelector('.company-name')?.textContent || 'Company';
+    const description =
+      document.querySelector('.is-post-details')?.innerText ||
+      document.querySelector('.job-details')?.innerText ||
+      document.querySelector('.card-content')?.innerText ||
+      document.body.innerText.substring(0, 2000);
+
+    return {
+      title: title.trim(),
+      company: company.trim(),
+      description: description.trim(),
+      url: window.location.href,
+    };
+  } catch (error) {
+    console.error('Error extracting Bayt job:', error);
+    return null;
+  }
+}
+
 // Function to inject the floating character
 function injectFloatingCharacter() {
   if (document.getElementById('career-ai-overlay')) return;
@@ -209,6 +236,7 @@ const jobBoardDomains = [
   'lever.co',
   'greenhouse.io',
   'angel.co',
+  'bayt.com',
 ];
 
 if (jobBoardDomains.some(domain => window.location.hostname.includes(domain))) {

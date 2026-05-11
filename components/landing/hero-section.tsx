@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import MetallicPaint from "@/components/ui/metallic-paint";
 
 const words = ["analyze", "prepare", "succeed", "advance"];
 
@@ -23,12 +24,30 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      {/* Background Image replacement */}
-      <div className="absolute right-[-10%] top-1/2 -translate-y-1/2 w-[800px] h-[800px] lg:w-[1000px] lg:h-[1000px] opacity-60 pointer-events-none flex items-center justify-center">
-        <img 
-          src="/bg.png" 
-          alt="Background Illustration" 
-          className="w-full h-full object-contain select-none transition-opacity duration-1000"
+      {/* Background Image with Metallic Paint effect */}
+      <div className="absolute right-[-10%] top-1/2 -translate-y-1/2 w-[800px] h-[800px] lg:w-[1200px] lg:h-[1200px] opacity-70 pointer-events-none flex items-center justify-center">
+        <MetallicPaint
+          imageSrc="/bg.png"
+          seed={42}
+          scale={2.5}
+          patternSharpness={1}
+          noiseScale={0.5}
+          speed={0.2}
+          liquid={0.6}
+          mouseAnimation={true}
+          brightness={1.8}
+          contrast={0.8}
+          refraction={0.02}
+          blur={0.01}
+          chromaticSpread={1.5}
+          fresnel={1.2}
+          angle={0}
+          waveAmplitude={0.8}
+          distortion={0.5}
+          contour={0.4}
+          lightColor="#ffffff"
+          darkColor="#000000"
+          tintColor="#ffffff"
         />
       </div>
       

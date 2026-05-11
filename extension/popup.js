@@ -124,10 +124,22 @@ window.saveLater = saveLater;
 window.openLogin = openLogin;
 
 window.openVoicePractice = function(jobTitle, company) {
-  const url = new URL(`${CONFIG.BASE_URL}${CONFIG.DASHBOARD_PATH}/voice-practice`);
-  url.searchParams.set('job', jobTitle);
-  url.searchParams.set('company', company);
-  chrome.tabs.create({ url: url.toString() });
+  const content = document.getElementById('content');
+  
+  // Replace the popup content with an iframe
+  content.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <button class="button button-secondary" style="width: auto; padding: 6px 12px; margin-top: 0;" onclick="window.location.reload()">
+        ← Back
+      </button>
+      <div style="font-size: 13px; font-weight: bold; color: #000;">AI Recruiter (${company})</div>
+    </div>
+    <iframe 
+      src="${CONFIG.BASE_URL}/extension-avatar?job=${encodeURIComponent(jobTitle)}&company=${encodeURIComponent(company)}" 
+      style="width: 100%; height: 440px; border: none; border-radius: 12px; background: #000;"
+      allow="microphone; camera"
+    ></iframe>
+  `;
 };
 
 function saveLater(jobUrl) {

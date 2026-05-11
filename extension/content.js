@@ -47,6 +47,11 @@ function extractJobData() {
     return extractBaytJob();
   }
 
+  // Naukri.com
+  if (url.includes('naukri.com')) {
+    return extractNaukriJob();
+  }
+
   return null;
 }
 
@@ -200,6 +205,28 @@ function extractBaytJob() {
   }
 }
 
+function extractNaukriJob() {
+  try {
+    const title = document.querySelector('.jd-header-title')?.textContent || document.querySelector('h1')?.textContent || 'Job Title';
+    const company = document.querySelector('.jd-header-comp-name')?.textContent || 'Company';
+    const description =
+      document.querySelector('.job-desc')?.innerText ||
+      document.querySelector('.job-description-details')?.innerText ||
+      document.body.innerText.substring(0, 2000);
+
+    return {
+      title: title.trim(),
+      company: company.trim(),
+      description: description.trim(),
+      url: window.location.href,
+    };
+  } catch (error) {
+    console.error('Error extracting Naukri job:', error);
+    return null;
+  }
+}
+
+
 // Function to inject the floating character
 function injectFloatingCharacter() {
   if (document.getElementById('career-ai-overlay')) return;
@@ -237,6 +264,7 @@ const jobBoardDomains = [
   'greenhouse.io',
   'angel.co',
   'bayt.com',
+  'naukri.com',
 ];
 
 if (jobBoardDomains.some(domain => window.location.hostname.includes(domain))) {

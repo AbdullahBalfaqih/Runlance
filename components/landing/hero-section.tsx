@@ -24,27 +24,27 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      {/* Background Image with Metallic Paint effect */}
-      <div className="absolute right-[-10%] top-1/2 -translate-y-1/2 w-[800px] h-[800px] lg:w-[1200px] lg:h-[1200px] opacity-70 pointer-events-none flex items-center justify-center">
+      {/* Background 'R' with Metallic Paint effect */}
+      <div className="absolute right-[-5%] top-1/2 -translate-y-1/2 w-[600px] h-[600px] lg:w-[900px] lg:h-[900px] opacity-80 pointer-events-none flex items-center justify-center">
         <MetallicPaint
-          imageSrc="/bg.png"
-          seed={42}
-          scale={2.5}
-          patternSharpness={1}
-          noiseScale={0.5}
-          speed={0.2}
-          liquid={0.6}
+          imageSrc="/r-logo.svg"
+          seed={77}
+          scale={2.2}
+          patternSharpness={1.2}
+          noiseScale={0.4}
+          speed={0.25}
+          liquid={0.8}
           mouseAnimation={true}
-          brightness={1.8}
-          contrast={0.8}
-          refraction={0.02}
-          blur={0.01}
-          chromaticSpread={1.5}
-          fresnel={1.2}
-          angle={0}
-          waveAmplitude={0.8}
-          distortion={0.5}
-          contour={0.4}
+          brightness={1.5}
+          contrast={0.9}
+          refraction={0.03}
+          blur={0.008}
+          chromaticSpread={2.5}
+          fresnel={1.5}
+          angle={45}
+          waveAmplitude={1.2}
+          distortion={0.3}
+          contour={0.6}
           lightColor="#ffffff"
           darkColor="#000000"
           tintColor="#ffffff"

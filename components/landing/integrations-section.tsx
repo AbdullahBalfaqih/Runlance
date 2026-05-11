@@ -3,18 +3,26 @@
 import { useEffect, useState, useRef } from "react";
 
 const integrations = [
-  { name: "GitHub", category: "Version Control" },
-  { name: "Slack", category: "Communication" },
-  { name: "Stripe", category: "Payments" },
-  { name: "PostgreSQL", category: "Database" },
-  { name: "Redis", category: "Cache" },
-  { name: "AWS", category: "Cloud" },
-  { name: "MongoDB", category: "Database" },
-  { name: "Vercel", category: "Hosting" },
-  { name: "Figma", category: "Design" },
-  { name: "Linear", category: "Project Management" },
-  { name: "Notion", category: "Documentation" },
-  { name: "OpenAI", category: "AI/ML" },
+  { name: "LinkedIn",        category: "Professional Network" },
+  { name: "Indeed",          category: "Job Search Engine"   },
+  { name: "Glassdoor",       category: "Company Reviews"     },
+  { name: "Bayt",            category: "Middle East Jobs"    },
+  { name: "Naukri",          category: "India's #1 Job Site" },
+  { name: "ZipRecruiter",    category: "AI Job Matching"     },
+  { name: "Monster",         category: "Global Recruitment"  },
+  { name: "Wellfound",       category: "Startup Jobs"        },
+  { name: "GulfTalent",      category: "Gulf Region"         },
+  { name: "Handshake",       category: "Campus Recruiting"   },
+  { name: "Dice",            category: "Tech Jobs"           },
+  { name: "FlexJobs",        category: "Remote Work"         },
+  { name: "Hired",           category: "Tech Talent"         },
+  { name: "CareerBuilder",   category: "US Recruitment"      },
+  { name: "SimplyHired",     category: "Job Aggregator"      },
+  { name: "We Work Remotely",category: "Remote Only"         },
+  { name: "Wuzzuf",          category: "MENA Region"         },
+  { name: "Toptal",          category: "Elite Freelance"     },
+  { name: "Jadarat",         category: "Saudi Jobs"          },
+  { name: "AngelList",       category: "Startup Network"     },
 ];
 
 export function IntegrationsSection() {
@@ -48,12 +56,12 @@ export function IntegrationsSection() {
             <span className="w-8 h-px bg-foreground/30" />
           </span>
           <h2 className="text-4xl lg:text-6xl font-display tracking-tight mb-6">
-            Works with everything
+            Works across every
             <br />
-            you already use.
+            job platform you use.
           </h2>
           <p className="text-xl text-muted-foreground">
-            200+ pre-built integrations. Connect your entire stack in minutes.
+            20+ top hiring platforms supported. Analyze any job posting in one click.
           </p>
         </div>
 

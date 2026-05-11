@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { AnimatedSphere } from "./animated-sphere";
 
 const words = ["analyze", "prepare", "succeed", "advance"];
 
@@ -24,9 +23,13 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      {/* Animated sphere background */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-40 pointer-events-none">
-        <AnimatedSphere />
+      {/* Background Image replacement */}
+      <div className="absolute right-[-10%] top-1/2 -translate-y-1/2 w-[800px] h-[800px] lg:w-[1000px] lg:h-[1000px] opacity-60 pointer-events-none flex items-center justify-center">
+        <img 
+          src="/bg.png" 
+          alt="Background Illustration" 
+          className="w-full h-full object-contain select-none transition-opacity duration-1000"
+        />
       </div>
       
       {/* Subtle grid lines */}

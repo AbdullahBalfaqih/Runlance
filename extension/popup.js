@@ -103,6 +103,9 @@ function displayResults(analysis, container, jobData) {
     <button class="button button-primary" onclick="openFullAnalysis('${analysis.id}')">
       View Full Analysis
     </button>
+    <button class="button button-primary" style="background: #22c55e; margin-top: 8px;" onclick="openVoicePractice('${jobData.title}', '${jobData.company}')">
+      🎙️ Practice Interview
+    </button>
     <button class="button button-secondary" onclick="saveLater('${jobData.url}')">
       Save for Later
     </button>
@@ -114,6 +117,18 @@ function openFullAnalysis(analysisId) {
     url: `${CONFIG.BASE_URL}${CONFIG.DASHBOARD_PATH}/analyses?id=${analysisId}`,
   });
 }
+
+// Make functions globally available for inline event handlers
+window.openFullAnalysis = openFullAnalysis;
+window.saveLater = saveLater;
+window.openLogin = openLogin;
+
+window.openVoicePractice = function(jobTitle, company) {
+  const url = new URL(`${CONFIG.BASE_URL}${CONFIG.DASHBOARD_PATH}/voice-practice`);
+  url.searchParams.set('job', jobTitle);
+  url.searchParams.set('company', company);
+  chrome.tabs.create({ url: url.toString() });
+};
 
 function saveLater(jobUrl) {
   chrome.storage.local.get(['savedJobs'], (data) => {

@@ -359,15 +359,15 @@ export function FloatingPersona({ persona, analysis }: Props) {
                 </button>
                 {!resumeMemory && (
                   <p className="text-[10px] text-amber-400/80 text-center leading-relaxed px-1">
-                    📎 يرجى رفع سيرتك الذاتية من{' '}
+                    📎 Please upload your resume in the{' '}
                     <a
                       href="/dashboard"
                       className="underline underline-offset-2 text-amber-300 hover:text-amber-200"
                       data-no-drag
                     >
-                      لوحة التحكم
+                      dashboard
                     </a>
-                    {' '}أولاً حتى أتمكن من تحليلها.
+                    {' '}first to enable analysis.
                   </p>
                 )}
 

@@ -6,27 +6,27 @@ import { Shield, Lock, Eye, FileCheck } from "lucide-react";
 const securityFeatures = [
   {
     icon: Shield,
-    title: "SOC 2 Type II",
-    description: "Independently audited security controls with continuous monitoring.",
+    title: "Resume Privacy",
+    description: "Your resume data is encrypted and never shared with employers or third parties without your consent.",
   },
   {
     icon: Lock,
     title: "End-to-end encryption",
-    description: "AES-256 encryption for data at rest and TLS 1.3 in transit.",
+    description: "All voice sessions and career data are encrypted at rest and in transit. Only you can access them.",
   },
   {
     icon: Eye,
-    title: "Zero-trust architecture",
-    description: "Every request is authenticated and authorized. No exceptions.",
+    title: "Session Confidentiality",
+    description: "AI practice sessions are private by default. Your interview performance data stays yours.",
   },
   {
     icon: FileCheck,
-    title: "GDPR & HIPAA",
-    description: "Full compliance with data protection and healthcare regulations.",
+    title: "GDPR Compliant",
+    description: "You own your data. Export or delete it anytime — no questions asked.",
   },
 ];
 
-const certifications = ["SOC 2", "ISO 27001", "HIPAA", "GDPR", "CCPA"];
+const certifications = ["GDPR", "Data Encryption", "Zero Tracking", "Private AI", "Your Data"];
 
 export function SecuritySection() {
   const [isVisible, setIsVisible] = useState(false);
@@ -56,16 +56,16 @@ export function SecuritySection() {
           >
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
               <span className="w-8 h-px bg-foreground/30" />
-              Security
+              Privacy & Security
             </span>
             <h2 className="text-4xl lg:text-6xl font-display tracking-tight mb-8">
-              Trust is
+              Your data stays
               <br />
-              non-negotiable.
+              yours. Always.
             </h2>
             <p className="text-xl text-muted-foreground leading-relaxed mb-12">
-              Enterprise-grade security isn&apos;t optional. It&apos;s built into every layer 
-              of our platform, from infrastructure to application.
+              Your resume, voice sessions, and career goals are private by design.
+              Runlance never sells or shares your data — period.
             </p>
 
             {/* Certifications */}

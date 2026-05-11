@@ -6,51 +6,55 @@ import { Copy, Check } from "lucide-react";
 const codeExamples = [
   {
     label: "Install",
-    code: `npm install @optimus/sdk
+    code: `# Get the Runlance Extension
+1. Open Chrome Web Store
+2. Search "Runlance AI"
+3. Click "Add to Chrome"
 
-# or
-yarn add @optimus/sdk
-pnpm add @optimus/sdk`,
+# Instantly analyze any job posting.`,
   },
   {
-    label: "Initialize",
-    code: `import { Optimus } from '@optimus/sdk'
-
-const optimus = new Optimus({
-  apiKey: process.env.OPTIMUS_KEY
-})`,
-  },
-  {
-    label: "Deploy",
-    code: `const app = await optimus.deploy({
-  name: 'my-app',
-  region: 'auto',
-  scaling: {
-    min: 1,
-    max: 100
-  }
+    label: "Analyze",
+    code: `// On any supported job board:
+const match = await runlance.analyzeJob({
+  url: window.location.href,
+  resumeId: 'my_resume_v2'
 })
 
-console.log('Live at:', app.url)`,
+console.log('Match Score:', match.score)
+console.log('Missing Skills:', match.gaps)`,
+  },
+  {
+    label: "Practice",
+    code: `// Start a cinematic voice mock interview
+const session = await runlance.startVoicePractice({
+  persona: 'Technical Recruiter',
+  focus: 'System Design',
+  difficulty: 'Hard'
+})
+
+session.on('feedback', (tips) => {
+  console.log('Real-time feedback:', tips)
+})`,
   },
 ];
 
 const features = [
   { 
-    title: "TypeScript native", 
-    description: "Full type safety with auto-generated types."
+    title: "Browser Extension", 
+    description: "Analyze jobs directly on LinkedIn, Indeed, and more without leaving the page."
   },
   { 
-    title: "Zero config", 
-    description: "Sensible defaults that just work."
+    title: "Cinematic Voice AI", 
+    description: "Practice interviews with an immersive, real-time AI recruiter avatar."
   },
   { 
-    title: "Edge-ready", 
-    description: "Runs anywhere: Node, Deno, Bun, browsers."
+    title: "ATS Optimization", 
+    description: "Ensure your resume beats applicant tracking systems with tailored keywords."
   },
   { 
-    title: "12KB gzipped", 
-    description: "Lightweight with zero dependencies."
+    title: "Privacy First", 
+    description: "Your data is encrypted, locally processed where possible, and never sold."
   },
 ];
 
@@ -119,16 +123,16 @@ export function DevelopersSection() {
           >
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
               <span className="w-8 h-px bg-foreground/30" />
-              For developers
+              How it works
             </span>
             <h2 className="text-4xl lg:text-6xl font-display tracking-tight mb-8">
-              Built by devs.
+              Built by professionals.
               <br />
-              <span className="text-muted-foreground">For devs.</span>
+              <span className="text-muted-foreground">For job seekers.</span>
             </h2>
             <p className="text-xl text-muted-foreground mb-12 leading-relaxed">
-              A thoughtfully designed SDK that gets out of your way. 
-              Ship faster with intuitive APIs and exceptional documentation.
+              A thoughtfully designed platform that gets out of your way. 
+              Land your dream job faster with intuitive AI tools and real-time coaching.
             </p>
             
             {/* Features */}
@@ -219,11 +223,11 @@ export function DevelopersSection() {
             
             {/* Links */}
             <div className="mt-6 flex items-center gap-6 text-sm">
-              <a href="#" className="text-foreground hover:underline underline-offset-4">
-                Read the docs
+              <a href="/dashboard" className="text-foreground hover:underline underline-offset-4">
+                Go to Dashboard
               </a>
               <span className="text-foreground/20">|</span>
-              <a href="#" className="text-muted-foreground hover:text-foreground">
+              <a href="https://github.com/AbdullahBalfaqih/Runlance" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
                 View on GitHub
               </a>
             </div>
